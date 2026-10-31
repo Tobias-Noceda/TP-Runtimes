@@ -1,0 +1,54 @@
+{
+  "algorithm": "dfs",
+  "heuristic": null,
+  "expanded_nodes": 76,
+  "frontier_nodes": 4,
+  "execution_time_seconds": 0.018926089993328787,
+  "board": {
+    "x": 5,
+    "y": 5,
+    "player": [
+      2,
+      2
+    ],
+    "walls": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        4
+      ]
+    ],
+    "cubes": [
+      [
+        1,
+        2
+      ]
+    ],
+    "wins": [
+      [
+        2,
+        2
+      ]
+    ]
+  },
+  "steps": [
+    "DOWN",
+    "LEFT",
+    "DOWN",
+    "LEFT",
+    "UP",
+    "UP",
+    "RIGHT"
+  ]
+}
