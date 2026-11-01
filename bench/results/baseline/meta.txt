@@ -1,0 +1,9 @@
+date: 2026-11-01T11:54:42-03:00
+host: Linux 7.0.0-42-generic x86_64, 8 CPUs
+config: RUNS=3 BOARDS='soko_01 microban' ALGORITHM=a_star HEURISTIC=reduction WORKERS='1 2 4 8' TIMEOUT=600
+repo sia1-proto: main@571eea8 (0 modified files)
+repo protoPython: fix/tuple-hash-xxhash@4acd5b49 (0 modified files)
+repo protoCore: fix/tuple-hash-xxhash@4d8e4876 (0 modified files)
+runtime cpython: /usr/local/bin/python3.14
+runtime cpython-ft: /home/tnoceda/.local/share/uv/python/cpython-3.14+freethreaded-linux-x86_64-gnu/bin/python3.14t
+runtime protopy: /home/tnoceda/Documentos/GitHub/ITBA/gITBA/electivas/runtimes-concurrentes/sia1-proto/../protoPython/build_release/src/runtime/protopy
