@@ -2,59 +2,97 @@
 import math
 
 # Data structures
-from heapq import heappush, heappop
-from collections import deque
+import queue
+import threading
+import itertools
 
 # Typings
-from typing import Sequence
 from tp1.types.heuristic import Heuristic
 from tp1.interfaces.state_manager import StateManager
 
 type MetaTuple[S] = tuple[float, int, S, float]
 
-# @link https://en.wikipedia.org/wiki/A*_search_algorithm
-# @generic S The state type MUST be comparable and hashable
-def a_star[S](sm: StateManager[S], start: S, h: Heuristic[S]) -> tuple[Sequence[S] | None, int, int]:
-    counter: int = 0
-    open_nodes: list[MetaTuple[S]] = [(h(start), counter, start, 0.0)]
-    closed_nodes = 0
+class AStar[S]:
+    def __init__(self, sm: StateManager[S], start: S, h: Heuristic[S], num_workers: int = 4):
+        self.sm = sm
+        self.h = h
 
-    smallest_g_score: dict[S, float] = { start: 0.0 }
+        self.counter = itertools.count()
 
-    previous_state: dict[S, S] = {}
+        self.open_nodes: queue.PriorityQueue[MetaTuple[S]] = queue.PriorityQueue()
+        self.submit(h(start), start, 0.0)
 
-    while open_nodes:
-        peak: MetaTuple[S] = heappop(open_nodes)
-        _, _, current, g_score = peak
+        self.previous_state: dict[S, S] = {}
+        self.smallest_g_score: dict[S, float] = { start: 0.0 }
+        self.solution: S | None = None
 
-        if smallest_g_score.get(current, math.inf) < g_score:
-            continue
+        self.workers: list[threading.Thread] = []
 
-        closed_nodes += 1
-        if sm.is_goal(current):
-            path = build_path(previous_state, current)
-            # Filter old inneficient states
-            open = len([n for n in open_nodes if smallest_g_score.get(current, math.inf) >= g_score])
-            return (path, closed_nodes, open)
+        for _ in range(num_workers):
+            worker = threading.Thread(target=self._worker)
+            worker.daemon = True
+            worker.start()
+            self.workers.append(worker)
 
-        for next in sm.next(current):
-            tentative: float = g_score + sm.dist(current, next)
+    def submit(self, h: float, state: S, g_score: float):
+        try:
+            self.open_nodes.put((h, next(self.counter), state, g_score))
+        except:
+            pass
 
-            if tentative < smallest_g_score.get(next, math.inf):
-                counter += 1
-                update: MetaTuple[S] = (tentative + h(next), counter, next, tentative)
+    def _worker(self):
+        while True:
+            if self.solution is not None:
+                return
 
-                heappush(open_nodes, update)
-                smallest_g_score[next] = tentative
-                previous_state[next] = current
+            try:
+                task = self.open_nodes.get()
+            except:
+                return
 
-    return (None, closed_nodes, 0)
+            try:
+                _, _, current, g_score = task
 
-def build_path[S](came_from: dict[S, S], current: S) -> Sequence[S]:
-    total_path = deque([current])
+                if current is None:
+                    return
 
-    while current in came_from:
-        current = came_from[current]
-        total_path.appendleft(current)
+                if self.smallest_g_score.get(current, math.inf) < g_score:
+                    continue
 
-    return list(total_path)
+                if self.sm.is_goal(current):
+                    self.solution = current
+                    self.open_nodes.shutdown(True)
+                    return
+
+                for next in self.sm.next(current):
+                    tentative = g_score + self.sm.dist(current, next)
+
+                    if tentative < self.smallest_g_score.get(next, math.inf):
+                        self.submit(tentative + self.h(next), next, tentative)
+                        self.smallest_g_score[next] = tentative
+                        self.previous_state[next] = current
+
+            finally:
+                self.open_nodes.task_done()
+
+    def close(self):
+        self.open_nodes.join()
+
+        for worker in self.workers:
+            worker.join()
+
+        return (self.build_path(), 0, 0)
+
+    def build_path(self):
+        if self.solution is None:
+            return None
+
+        current = self.solution
+
+        total_path: list[S] = [current]
+        while current in self.previous_state:
+            current = self.previous_state[current]
+            total_path.append(current)
+
+        total_path.reverse()
+        return total_path

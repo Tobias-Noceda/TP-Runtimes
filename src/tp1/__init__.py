@@ -1,4 +1,4 @@
-from tp1.algorithms.a_star import a_star
+from tp1.algorithms.a_star import AStar
 from tp1.algorithms.greedy import greedy
 from tp1.algorithms.iddfs import iddfs
 from tp1.algorithms.dfs import dfs
@@ -30,11 +30,11 @@ type SokobanBoardManager = BoardManager[SokobanBoardState, SokobanBoard]
 # Imaging bringing the worst thing from Java into Python...
 algorithms: dict[str,
     Callable[
-        [SokobanBoardManager, SokobanBoardState, Heuristic],
+        [SokobanBoardManager, SokobanBoardState, Heuristic[SokobanBoardState]],
         tuple[Sequence[SokobanBoardState] | None, int, int]
     ]
 ] = {
-    "a_star": lambda m, s, h: a_star(m, s, h),
+    "a_star": lambda m, s, h: AStar(m, s, h).close(),
     "greedy": lambda m, s, h: greedy(m, s, h),
     "iddfs": lambda m, s, _: iddfs(m, s),
     "dfs": lambda m, s, _: dfs(m, s),
@@ -69,7 +69,7 @@ def main() -> None:
 
     print(f"Starting {algorithm_name}{f" ({h_name})" if uses_h else ""} in {board_path}")
 
-    manager = BoardManager(board)
+    manager = BoardManager[SokobanBoardState, SokobanBoard](board)
 
     algorithm = algorithms[algorithm_name]
 
