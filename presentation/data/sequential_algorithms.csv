@@ -1,0 +1,8 @@
+board,algorithm,steps,expanded,cpython_s
+soko_01,A* (1 worker),78,30162,0.2035
+soko_01,greedy best-first,96,757,0.0067
+soko_01,BFS,78,60358,0.249
+microban,A* (1 worker),63,34796,0.3403
+microban,greedy best-first,67,6051,0.0545
+Patrick/P110,A* (1 worker),51,96709,0.7228
+Patrick/P110,greedy best-first,55,1227,0.0085

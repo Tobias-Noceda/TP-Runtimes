@@ -1,0 +1,13 @@
+board,runtime,sequential_s,best_s,best_workers,speedup,best_vs_cpython_sequential
+soko_01,cpython,0.232,0.205,6,1.13,0.9
+microban,cpython,0.343,0.319,4,1.08,0.9
+Patrick/P110,cpython,0.775,0.707,2,1.09,0.9
+soko_01,cpython-ft-gil,0.255,0.237,2,1.07,1.0
+microban,cpython-ft-gil,0.397,0.368,2,1.08,1.1
+Patrick/P110,cpython-ft-gil,0.902,0.853,2,1.06,1.1
+soko_01,cpython-ft,0.26,0.257,2,1.01,1.1
+microban,cpython-ft,0.394,0.379,4,1.04,1.1
+Patrick/P110,cpython-ft,0.906,0.906,1,1.0,1.2
+soko_01,protopy,21.344,9.386,4,2.27,40.4
+microban,protopy,35.992,13.668,6,2.63,39.8
+Patrick/P110,protopy,78.659,34.328,6,2.29,44.3

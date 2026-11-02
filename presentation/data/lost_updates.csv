@@ -1,0 +1,13 @@
+runtime,threads,incr_lost_pct_mean,reps
+cpython,2,0.0,5
+cpython,4,0.0,5
+cpython,8,0.0,5
+cpython,16,0.0,5
+cpython-ft,2,52.5,5
+cpython-ft,4,72.8,5
+cpython-ft,8,81.1,5
+cpython-ft,16,89.0,5
+protopy,2,48.3,5
+protopy,4,64.5,5
+protopy,8,82.7,5
+protopy,16,89.0,5

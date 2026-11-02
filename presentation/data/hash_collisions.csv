@@ -1,0 +1,7 @@
+runtime,states,distinct_hashes,lost_by_set,lost_pct
+protoPython (old hash),21420,13914,7506,35.04
+protoPython (old hash),124992,81889,43103,34.48
+protoPython (xxHash fix),21420,21420,0,0.0
+protoPython (xxHash fix),124992,124992,0,0.0
+CPython 3.14,21420,21420,0,0.0
+CPython 3.14,124992,124992,0,0.0

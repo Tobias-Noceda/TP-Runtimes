@@ -1,0 +1,5 @@
+case,default,bsymbolic,interp,cpython
+clash,TypeError: A.__init__() takes 1 positional argument but 2 were given,clash ok: A B 1,clash ok: A B 1,clash ok: A B 1
+pep695,NameError: name 'T' is not defined,NameError: name 'T' is not defined,pep695 ok: 1,pep695 ok: 1
+generic_base,TypeError: bases must be types,TypeError: bases must be types,"generic_base ok: (<class 'Child'>, <class 'Base'>, <class 'Generic'>, <class 'object'>)","generic_base ok: (<class 'generic_base.Child'>, <class 'generic_base.Base'>, <class 'typing.Generic'>, <class 'object'>)"
+builtin_generic,TypeError: bases must be types,TypeError: bases must be types,TypeError: 'GenericAlias' object is not callable,builtin_generic ok: [1]

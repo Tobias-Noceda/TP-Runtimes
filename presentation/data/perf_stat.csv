@@ -1,0 +1,4 @@
+run,cpu_s,wall_s,ctx
+"protoPython, 1 worker",37.114,22.758,898.0
+"protoPython, 4 workers",38.362,9.797,61664.0
+"3.14t no GIL, 4 workers",0.942,0.305,26682.0

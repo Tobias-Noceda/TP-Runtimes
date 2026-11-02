@@ -1,0 +1,4 @@
+board,width,height,boxes,optimal_moves
+soko_01,13,8,2,78
+microban,8,5,5,63
+P110,7,7,4,51

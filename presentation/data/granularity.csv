@@ -1,0 +1,13 @@
+board,runtime,us_per_node_1_worker
+soko_01,cpython,7.7
+microban,cpython,9.9
+Patrick/P110,cpython,8.0
+soko_01,cpython-ft-gil,8.4
+microban,cpython-ft-gil,11.4
+Patrick/P110,cpython-ft-gil,9.3
+soko_01,cpython-ft,8.6
+microban,cpython-ft,11.3
+Patrick/P110,cpython-ft,9.4
+soko_01,protopy,707.6
+microban,protopy,1034.4
+Patrick/P110,protopy,813.4

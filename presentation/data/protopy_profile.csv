@@ -1,0 +1,7 @@
+category,w1_pct,w4_pct
+garbage collector (mark + sweep),37.5,18.0
+cell allocation,24.3,22.2
+attribute / type lookup,16.4,25.6
+"containers (sparse lists, tuples)",9.8,14.2
+bytecode dispatch,1.3,2.3
+everything else,10.7,17.7
