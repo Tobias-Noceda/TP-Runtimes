@@ -14,6 +14,7 @@ from tp1.types.heuristic import Heuristic
 from tp1.types.sokoban_state import SokobanBoardState
 
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -25,6 +26,11 @@ heuristics = {
     "reduction": h.reduction_manhattan,
 }
 
+# Worker threads for the parallel A*: TP1_WORKERS=8 tp1 a_star ...
+WORKERS = int(os.environ.get("TP1_WORKERS", "4"))
+# TP1_LOCKS=1 fixes the check-then-act race on the shared g-scores with striped locks.
+LOCKS = os.environ.get("TP1_LOCKS", "0") == "1"
+
 type SokobanBoardManager = BoardManager[SokobanBoardState, SokobanBoard]
 
 # Imaging bringing the worst thing from Java into Python...
@@ -34,7 +40,7 @@ algorithms: dict[str,
         tuple[Sequence[SokobanBoardState] | None, int, int]
     ]
 ] = {
-    "a_star": lambda m, s, h: AStar(m, s, h).close(),
+    "a_star": lambda m, s, h: AStar(m, s, h, num_workers=WORKERS, locks=LOCKS).close(),
     "greedy": lambda m, s, h: greedy(m, s, h),
     "iddfs": lambda m, s, _: iddfs(m, s),
     "dfs": lambda m, s, _: dfs(m, s),
