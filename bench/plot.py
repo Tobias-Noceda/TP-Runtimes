@@ -45,28 +45,58 @@ def load(results_dir: Path) -> list[dict]:
 def summarise(samples: list[dict]) -> list[dict]:
     groups: dict[tuple, list[dict]] = defaultdict(list)
     for s in samples:
-        groups[(s["board"], s["algorithm"], s["heuristic"], s["runtime"], s["workers"])].append(s)
+        groups[(s["board"], s["algorithm"], s["heuristic"], int(s.get("locks", 0)), s["runtime"], s["workers"])].append(s)
 
     rows = []
-    for (board, algorithm, heuristic, runtime, workers), group in sorted(groups.items()):
+    for (board, algorithm, heuristic, locks, runtime, workers), group in sorted(groups.items()):
         times = [s["seconds"] for s in group if s["status"] == "ok"]
         steps = sorted({s["steps"] for s in group if s["status"] == "ok" and s.get("steps") is not None})
+        def mean_of(key):
+            vals = [s[key] for s in group if s["status"] == "ok" and s.get(key) is not None]
+            return statistics.fmean(vals) if vals else None
+
+        expanded = mean_of("expanded")
+        mean_s = statistics.fmean(times) if times else None
         rows.append({
             "board": board,
             "algorithm": algorithm,
             "heuristic": heuristic,
+            "locks": locks,
             "runtime": runtime,
             "workers": workers,
             "runs": len(group),
             "ok": len(times),
             "timeouts": sum(s["status"] == "timeout" for s in group),
             "errors": sum(s["status"] == "error" for s in group),
-            "mean_s": statistics.fmean(times) if times else None,
+            "mean_s": mean_s,
             "std_s": statistics.stdev(times) if len(times) > 1 else 0.0 if times else None,
             "min_s": min(times) if times else None,
             "max_s": max(times) if times else None,
             "steps": "/".join(map(str, steps)),
+            "expanded": expanded,
+            "stale": mean_of("stale"),
+            "regressions": mean_of("regressions"),
+            # Wall time per expanded node: the task granularity.
+            "us_per_node": mean_s / expanded * 1e6 if mean_s and expanded else None,
         })
+
+    # Speedup over the smallest worker count of the same runtime, and the
+    # serial fraction Amdahl's law needs to explain it: S = 1 / (s + (1 - s) / n)
+    # => s = (n / S - 1) / (n - 1). A serial fraction that grows with n means
+    # something beyond a fixed serial part (contention) is eating the gain.
+    base: dict[tuple, dict] = {}
+    for r in rows:
+        key = (r["board"], r["algorithm"], r["heuristic"], r["locks"], r["runtime"])
+        if r["mean_s"] is not None and (key not in base or r["workers"] < base[key]["workers"]):
+            base[key] = r
+    for r in rows:
+        b = base.get((r["board"], r["algorithm"], r["heuristic"], r["locks"], r["runtime"]))
+        r["speedup"] = r["serial_fraction"] = None
+        if b and r["mean_s"] and b["workers"] == 1:
+            r["speedup"] = b["mean_s"] / r["mean_s"]
+            n = r["workers"]
+            if n > 1:
+                r["serial_fraction"] = (n / r["speedup"] - 1) / (n - 1)
     return rows
 
 
@@ -152,18 +182,25 @@ def main() -> None:
 
     by_plot: dict[tuple, list[dict]] = defaultdict(list)
     for r in rows:
-        by_plot[(r["board"], r["algorithm"], r["heuristic"])].append(r)
+        by_plot[(r["board"], r["algorithm"], r["heuristic"], r["locks"])].append(r)
 
-    for (board, algorithm, heuristic), group in by_plot.items():
+    for (board, algorithm, heuristic, locks), group in by_plot.items():
         runs = max(r["runs"] for r in group)
-        title = f"{board} — {algorithm} ({heuristic}), {runs} runs per point"
-        plot_board(group, title, results_dir / f"{board}_{algorithm}_{heuristic}.png")
+        fix = ", striped locks" if locks else ", no locks"
+        title = f"{board} — {algorithm} ({heuristic}){fix}, {runs} runs per point"
+        plot_board(group, title, results_dir / f"{board.replace('/', '_')}_{algorithm}_{heuristic}{'_locks' if locks else ''}.png")
 
-    print(f"{'board':10} {'runtime':15} {'w':>2} {'mean s':>9} {'std s':>8} {'ok':>4}  steps")
+    def fmt(v, spec):
+        return format(v, spec) if v is not None else "-"
+
+    print(f"{'board':12} {'L':1} {'runtime':15} {'w':>3} {'mean s':>9} {'std s':>8} {'ok':>5} {'steps':>5}"
+          f" {'expanded':>9} {'regress':>8} {'us/node':>8} {'speedup':>7} {'serial':>6}")
     for r in rows:
-        mean = f"{r['mean_s']:.3f}" if r["mean_s"] is not None else "-"
-        std = f"{r['std_s']:.3f}" if r["std_s"] is not None else "-"
-        print(f"{r['board']:10} {r['runtime']:15} {r['workers']:>2} {mean:>9} {std:>8} {r['ok']:>2}/{r['runs']}  {r['steps']}")
+        print(f"{r['board']:12} {r['locks']:1} {r['runtime']:15} {r['workers']:>3} {fmt(r['mean_s'], '.3f'):>9}"
+              f" {fmt(r['std_s'], '.3f'):>8} {r['ok']:>2}/{r['runs']:<2} {r['steps']:>5}"
+              f" {fmt(r['expanded'], '.0f'):>9} {fmt(r['regressions'], '.1f'):>8}"
+              f" {fmt(r['us_per_node'], '.1f'):>8} {fmt(r['speedup'], '.2f'):>7}"
+              f" {fmt(r['serial_fraction'], '.2f'):>6}")
     print(f"\nsummary.csv and plots in {results_dir}")
 
 

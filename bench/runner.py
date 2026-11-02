@@ -2,7 +2,7 @@
 # Runs under every runtime being compared (CPython, CPython 3.14t, protopy),
 # so it only uses the standard library and tp1 itself.
 #
-# Usage: runner.py <board.json> <algorithm> <heuristic> <workers>
+# Usage: runner.py <board.json> <algorithm> <heuristic> <workers> [locks 0|1]
 
 import json
 import sys
@@ -27,18 +27,22 @@ heuristics = {
 
 def main() -> None:
     board_path, algorithm, h_name, workers = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4])
+    locks = len(sys.argv) > 5 and sys.argv[5] == "1"
 
     board, start = parse_board(board_path)
     manager = BoardManager(board)
     heuristic = heuristics[h_name](board)
 
+    counters = {}
     started = time.perf_counter()
     if algorithm == "a_star":
-        path, _, _ = AStar(manager, start, heuristic, num_workers=workers).close()
+        search = AStar(manager, start, heuristic, num_workers=workers, locks=locks)
+        path, expanded, frontier = search.close()
+        counters = {"stale": search.stale, "regressions": search.regressions}
     elif algorithm == "greedy":
-        path, _, _ = greedy(manager, start, heuristic)
+        path, expanded, frontier = greedy(manager, start, heuristic)
     elif algorithm == "bfs":
-        path, _, _ = bfs(manager, start)
+        path, expanded, frontier = bfs(manager, start)
     else:
         raise SystemExit(f"unknown algorithm {algorithm}")
     elapsed = time.perf_counter() - started
@@ -47,6 +51,9 @@ def main() -> None:
         "seconds": elapsed,
         "solved": path is not None,
         "steps": len(path) - 1 if path is not None else None,
+        "expanded": expanded,
+        "frontier": frontier,
+        **counters,
     }))
 
 

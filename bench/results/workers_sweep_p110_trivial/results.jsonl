@@ -1,0 +1,9 @@
+{"status": "ok", "seconds": 103.19164128500051, "solved": true, "steps": 51, "runtime": "protopy", "board": "Patrick/P110", "algorithm": "a_star", "heuristic": "trivial", "workers": 1, "run": 1}
+{"status": "ok", "seconds": 55.48990225899979, "solved": true, "steps": 51, "runtime": "protopy", "board": "Patrick/P110", "algorithm": "a_star", "heuristic": "trivial", "workers": 2, "run": 1}
+{"status": "ok", "seconds": 42.927988102999734, "solved": true, "steps": 51, "runtime": "protopy", "board": "Patrick/P110", "algorithm": "a_star", "heuristic": "trivial", "workers": 4, "run": 1}
+{"status": "error", "seconds": null, "runtime": "protopy", "board": "Patrick/P110", "algorithm": "a_star", "heuristic": "trivial", "workers": 8, "run": 1}
+{"status": "ok", "seconds": 43.40429843000129, "solved": true, "steps": 51, "runtime": "protopy", "board": "Patrick/P110", "algorithm": "a_star", "heuristic": "trivial", "workers": 16, "run": 1}
+{"status": "ok", "seconds": 48.108678067001165, "solved": true, "steps": 51, "runtime": "protopy", "board": "Patrick/P110", "algorithm": "a_star", "heuristic": "trivial", "workers": 32, "run": 1}
+{"status": "ok", "seconds": 49.98470815800101, "solved": true, "steps": 51, "runtime": "protopy", "board": "Patrick/P110", "algorithm": "a_star", "heuristic": "trivial", "workers": 64, "run": 1}
+{"status": "ok", "seconds": 50.727678159999414, "solved": true, "steps": 51, "runtime": "protopy", "board": "Patrick/P110", "algorithm": "a_star", "heuristic": "trivial", "workers": 128, "run": 1}
+{"status": "ok", "seconds": 50.30410487399968, "solved": true, "steps": 51, "runtime": "protopy", "board": "Patrick/P110", "algorithm": "a_star", "heuristic": "trivial", "workers": 256, "run": 1}
